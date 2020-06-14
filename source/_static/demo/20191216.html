@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>非同期処理（エラー）</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <h1>非同期処理（エラー）について</h1>
+    <p>
+        API利用時などエラー返却の受け取る方法
+    </p>
+    <p>Promise は非同期処理結果のオブジェクト</p>
+
+    <style type="text/css">
+    </style>
+
+    <section id="contents">
+        <input type="button" value="エラーなし３秒後DONE" @click="exec3()">
+        <input type="button" value="１秒後にエラー発生" @click="execError()">
+        <input type="button" value="順番処理で途中エラー中止" @click="execJunbanError()">
+        <div>
+            <span v-html="txt"></span>
+        </div>
+    </section>
+
+<script>
+new Vue({
+    el: '#contents',
+    data: {
+        txt: '',
+    },
+    methods: {
+        time() {
+            let dd = new Date();
+            return `${dd.getHours()}：${dd.getMinutes()}：${dd.getSeconds()}`;
+        },
+        exec3() {
+            this.txt = `開始 - ${this.time()}<br>`
+            new Promise((resolve) => {
+                setTimeout(
+                    () => {
+                        resolve(`実行 - ${this.time()}<br>`);
+                    }, 3000,
+                );
+            }).then((result) => {
+                // min秒後に実行された結果
+                this.txt = this.txt + result;
+            });
+        },
+        execError() {
+            this.txt = `開始 - ${this.time()}<br>`
+            new Promise((resolve, reject) => {
+                setTimeout(
+                    () => {
+                        // resolve(`成功 - ${this.time()}<br>`);
+                        // エラー発生
+                        reject(new Error(`Promise Error--${this.time()}<br>`));
+                    }, 1000,
+                );
+            }).then((result) => {
+                this.txt += '成功した場合の処理: ' + result;
+            }).catch((reject) => {
+                this.txt += '失敗した場合の処理: ' + reject;
+            });
+        },
+        execJunbanError() {
+            this.txt = `開始 - ${this.time()}<br>`
+            let self = this;
+            async function task() {
+                try {
+                    self.txt += await self.promiseMin(1);
+                    self.txt += await self.promiseMin(2);
+                    self.txt += await self.promiseMinError(1);
+                    // 行われない
+                    self.txt += await self.promiseMin(3);
+                } catch (error) {
+                    // エラー発生時はここへ入って終了
+                    self.txt += error;
+                }
+            };
+
+            task().then(() => {
+                this.txt += `-- おわり。<br>`;
+            });
+        },
+        // min秒後に結果を返す関数
+        async promiseMin(min) {
+            return new Promise((resolve) => {
+                setTimeout(
+                    () => {
+                        resolve(`${min}秒後の実行 - ${this.time()}<br>`);
+                    }, min * 1000,
+                );
+            });
+        },
+        // min秒後にErrorを返す関数
+        async promiseMinError(min) {
+            return new Promise((resolve, reject) => {
+                setTimeout(
+                    () => {
+                        reject(new Error(`${min}秒後のエラー - ${this.time()}<br>`));
+                    }, min * 1000,
+                );
+            });
+        },
+    },
+});
+</script>
+</body>
+</html>

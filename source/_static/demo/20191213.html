@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ボタンをランダムに配置みせ</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <h1>ボタンをランダムに配置みせ</h1>
+
+    <style type="text/css">
+    </style>
+
+    <section id="contents">
+        <button @click="rnd()">randamreset</button>
+        <input type="text" v-model="disp"></input>
+        <div>
+            <span v-for="item in buttonNumber" v-bind:key="item.id">
+                <input @click="num_click(item)" type="button" :value="item">
+            </span>
+        </div>
+    </section>
+
+<script>
+new Vue({
+    el: '#contents',
+    data: {
+        // isDisplay: false,
+        appName: 'ランダム配置のキー入力ボタン',
+        buttonNumber: [],
+        disp: 0,
+    },
+    created () {
+        // console.log("ss");
+        this.rnd();
+
+    },
+    watch: {
+        // isDisplay: 'rnd',
+    },
+    methods: {
+        num_click(v) {
+            this.disp = this.disp + v.toString();
+        },
+        rnd() {
+            this.buttonNumber = [];
+
+            // 配列を用意。０から９を入れる。
+            var random = Math.floor(Math.random() * 100);
+
+            // 乱数がキーの配列を用意。値は番号。
+            var tempNum = [];
+            for (let index = 0; index < 10; index++) {
+                tempNum.push([Math.floor(Math.random() * 100), index]);
+            }
+            // 並べ替え
+            tempNum.sort((a, b) => a[0] - b[0]);
+
+            // 抜き出して変数へ追加
+            tempNum.forEach(
+            (val) => {
+                this.buttonNumber.push(val[1]);
+            });
+
+            this.disp = 0;
+        },
+    },
+});
+</script>
+</body>
+</html>

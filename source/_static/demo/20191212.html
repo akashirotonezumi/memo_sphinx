@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vuejsでプログレスバーふう（CDN）</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <h1>Vuejsでプログレスバーふう</h1>
+
+    <style type="text/css">
+/*         #contents {
+            width: 100px;
+        } */
+        .bar {
+            background-color: #455765;
+            width: 5px;
+        }
+    </style>
+
+    <section id="contents">
+        <button @click="start()">start</button>
+        <div class="bar">
+            &nbsp;
+        </div>
+    </section>
+
+<script>
+new Vue({
+    el: '#contents',
+    methods: {
+        start() {
+            for (let index = 0; index <= 100; index++) {
+            setTimeout(
+                () => {
+                let a = (index) + "%";
+                this.setW(a);
+                }, index * 20, // ミリ秒 (1/1000 秒) 単位
+            );
+            }
+        },
+        setW(v) {
+            const dom = document.querySelector(".bar");
+            dom.style.width = v;
+        },
+    },
+});
+</script>
+</body>
+</html>

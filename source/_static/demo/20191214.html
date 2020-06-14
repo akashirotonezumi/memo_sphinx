@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ブラウザセッションを使う</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <h1>ブラウザセッションを使う</h1>
+
+    <style type="text/css">
+    </style>
+
+    <section id="contents">
+        <input type="text" v-model="val">
+        <input type="button" value="セッションから読み込む" @click="getS()">
+        <input type="button" value="入力した値をセッションに保存" @click="setS()">
+        <input type="button" value="セッション破棄" @click="drop()">
+    </section>
+
+<script>
+new Vue({
+    el: '#contents',
+    data: {
+        val: '',
+    },
+    computed: {
+        sessionName: () => { return 'sutoraige' },
+    },
+    methods: {
+        setS() {
+            sessionStorage.setItem(this.sessionName,
+            JSON.stringify({
+                text: this.val,
+            })
+            );
+            this.val = '';
+        },
+        drop() {
+            sessionStorage.removeItem(this.sessionName)
+            this.val = '';
+        },
+        getS() {
+            this.val = '';
+            var kkk = JSON.parse(sessionStorage.getItem(this.sessionName));
+            if (kkk == null) {
+            return;
+            }
+            this.val = kkk.text;
+        },
+    },
+});
+</script>
+</body>
+</html>

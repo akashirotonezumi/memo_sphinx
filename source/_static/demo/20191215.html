@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>非同期処理</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <h1>非同期処理について</h1>
+    <p>
+        APIなど取得に時間がかかる処理を非同期でさせると
+        取得完了を待たず描画処理に進んでしまいエラーになる
+    </p>
+    <p>
+        読み込みや取得完了後に、結果が返ってきたことを確認してから
+        実行するようにする
+    </p>
+    <p>Promise は非同期処理結果のオブジェクト</p>
+
+    <style type="text/css">
+    </style>
+
+    <section id="contents">
+        <input type="button" value="すぐ実行" @click="exec0()">
+        <input type="button" value="５秒後" @click="exec5()">
+        <input type="button" value="３秒後のあとに５秒後" @click="exec35()">
+        <input type="button" value="５と１０秒後両方の処理完了後に別の処理を実行" @click="exec510other()">
+        <div>
+            <span v-html="txt"></span>
+        </div>
+    </section>
+
+<script>
+new Vue({
+    el: '#contents',
+    data: {
+        txt: '',
+    },
+    methods: {
+        time() {
+            let dd = new Date();
+            return `${dd.getHours()}：${dd.getMinutes()}：${dd.getSeconds()}`;
+        },
+        exec0() {
+            this.txt = '結果表示';
+        },
+        exec5() {
+            this.txt = `開始 - ${this.time()}<br>`
+            new Promise((resolve) => {
+                setTimeout(
+                    () => {
+                        resolve(`実行 - ${this.time()}<br>`);
+                    }, 5000,
+                );
+            }).then((result) => {
+                // ５秒後に実行された結果
+                this.txt = this.txt + result;
+            });
+        },
+        // min秒後に結果を返す関数
+        async promiseMin(min) {
+            return new Promise((resolve) => {
+                setTimeout(
+                    () => {
+                        resolve(`${min}秒後の実行 - ${this.time()}<br>`);
+                    }, min * 1000,
+                );
+            });
+        },
+        exec35() {
+            this.txt = `順番開始 - ${this.time()}<br>`
+            let self = this;
+            // 待たせる関数
+            async function promiseAwait() {
+                self.txt += await self.promiseMin(3);
+                self.txt += await self.promiseMin(5);
+            };
+            promiseAwait().then(() => {
+                this.txt += `合計の８秒後の実行 - ${this.time()}<br>`;
+            });
+        },
+        exec510other() {
+            this.txt = `同時開始 - ${this.time()}<br>`
+            let self = this;
+            // まとめる関数
+            async function promiseAll() {
+                return Promise.all([self.promiseMin(5), self.promiseMin(10)]);
+            }
+            promiseAll().then((result) => {
+                const [a, b] = result;
+                this.txt += a;
+                this.txt += b;
+                this.txt += `最長の１０秒後を待ってからの実行 - ${this.time()}<br>`;
+            });
+        },
+    },
+});
+</script>
+</body>
+</html>
