@@ -1,3 +1,6 @@
 .vscode/settings.json
 build/*
 source/_build/html/*
+test.*
+
+
